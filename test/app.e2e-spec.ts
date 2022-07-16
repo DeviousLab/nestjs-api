@@ -5,6 +5,7 @@ import * as pactum from 'pactum';
 import { AppModule } from '../src/app.module';
 import { AuthDto } from '../src/auth/dto';
 import { PrismaService } from '../src/prisma/prisma.service';
+import { EditUserDto } from '../src/user/dto';
 
 describe('App e2e', () => {
   let app: INestApplication;
@@ -101,9 +102,35 @@ describe('App e2e', () => {
   });
 
   describe('User', () => {
-    describe('Get current user', () => {});
+    describe('Get current user', () => {
+      it('should get current user', () => {
+        return pactum
+          .spec()
+          .get('/users/me')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(200);
+      })
+    });
 
-    describe('Edit current user', () => {});
+    describe('Edit current user', () => {
+      it('should edit current user', () => {
+        const dto: EditUserDto = {
+          firstName: 'Bruh',
+          lastName: 'Bruh',
+          email: 'bruhh@bruh.com'
+        }
+        return pactum
+          .spec()
+          .patch('/users')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .withBody(dto)
+          .expectStatus(200);
+      })
+    });
   });
 
   describe('Bookmark', () => {

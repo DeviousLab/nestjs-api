@@ -29,7 +29,19 @@ export class AuthService {
     }
   }
 
-  signIn() {
-    return 'signIn';
+  async signIn(dto: AuthDto) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email: dto.email,
+      },
+    });
+    if (!user) throw new ForbiddenException('Invalid account details');
+
+    const valid = await argon.verify(user.hash, dto.password);
+    if (!valid) throw new ForbiddenException('Invalid account details');
+
+    delete user.hash;
+
+    return user;
   }
 }
